@@ -219,3 +219,6 @@ __marimo__/
 
 # Sample data
 sample/
+
+# .DS_Store
+.DS_Store
