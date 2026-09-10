@@ -1,8 +1,6 @@
 from __future__ import annotations
-import struct
 from dataclasses import dataclass
-from typing import Optional, Iterator, Union
-from pathlib import Path
+from typing import Optional, Union
 
 @dataclass
 class SystemEventMessage:
