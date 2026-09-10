@@ -1,9 +1,8 @@
 from __future__ import annotations
-import struct
 import sys
 from typing import Optional, Iterator
 from pathlib import Path
-from parser import parse_message, big_endian_2_byte_format_str
+from parser import parse_message
 from dataclass import *
 
 TYPE_TO_LEN_MAP: dict[str, int] = {
@@ -32,46 +31,34 @@ TYPE_TO_LEN_MAP: dict[str, int] = {
 }
 
 def iter_messages(filename: str | Path, max_messages: Optional[int] = None) -> Iterator[Message]:
-    """
-    Yield parsed messages from an ITCH file.
-    Automatically detects length-prefixed vs raw format.
-    """
     path = Path(filename)
     data = path.read_bytes()
-    pos = 2
+    pos = 0
     count = 0
-
-    length_prefixed = False
-    if len(data) >= 2:
-        first_len = struct.unpack_from(big_endian_2_byte_format_str, data, 0)[0]
-        if 8 <= first_len <= 64:
-            length_prefixed = True
 
     while pos < len(data):
         if max_messages is not None and count >= max_messages:
             break
 
-        if length_prefixed:
-            if pos + 2 > len(data):
-                break
-            msg_len = struct.unpack_from(big_endian_2_byte_format_str, data, pos)[0]
+        while pos + 1 < len(data) and data[pos] == 0 and data[pos + 1] == 0:
             pos += 2
-            if pos + msg_len > len(data):
-                break
-            msg = data[pos:pos + msg_len]
-            pos += msg_len
-        else:
-            if pos >= len(data):
-                break
-            msg_type = chr(data[pos])
-            msg_len = TYPE_TO_LEN_MAP.get(msg_type)
-            if msg_len is None:
-                print(f"Unknown message type '{msg_type}' at offset {pos}. Stopping.")
-                break
-            if pos + msg_len > len(data):
-                break
-            msg = data[pos:pos + msg_len]
-            pos += msg_len
+
+        if pos >= len(data):
+            break
+
+        msg_type = chr(data[pos])
+        msg_len = TYPE_TO_LEN_MAP.get(msg_type)
+
+        if msg_len is None:
+            print(f"Unknown message type '{msg_type}' (0x{data[pos]:02x}) at offset {pos}. Stopping.")
+            break
+
+        if pos + msg_len > len(data):
+            print(f"Truncated message at offset {pos}")
+            break
+
+        msg = data[pos : pos + msg_len]
+        pos += msg_len
 
         parsed = parse_message(msg)
         if parsed is not None:
