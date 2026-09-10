@@ -261,3 +261,57 @@ def parse_dlwcrpd(msg: bytes) -> DLWCRPD:
         lower_price_range_collar=struct.unpack_from(big_endian_4_byte_format_str, msg, 40)[0],
         upper_price_range_collar=struct.unpack_from(big_endian_4_byte_format_str, msg, 44)[0]
     )
+
+def parse_message(msg: bytes) -> Optional[Message]:
+    """Parse a single complete message (without length prefix)."""
+    if not msg:
+        return None
+
+    msg_type = chr(msg[0])
+
+    if msg_type == 'S':
+        return parse_system_event_message(msg)
+    elif msg_type == 'R':
+        return parse_stock_directory(msg)
+    elif msg_type == 'H':
+        return parse_stock_trading_action(msg)
+    elif msg_type == 'Y':
+        return parse_reg_sho_restriction(msg)
+    elif msg_type == 'L':
+        return parse_market_participation_position(msg)
+    elif msg_type == 'V':
+        return parse_mwcb_decline_level_message(msg)
+    elif msg_type == 'W':
+        return parse_mwcb_status_message(msg)
+    elif msg_type == 'K':
+        return parse_quoting_period_update(msg)
+    elif msg_type == 'J':
+        return parse_luld_auction_collar(msg)
+    elif msg_type == 'h':
+        return parse_operational_halt(msg)
+    elif msg_type == 'A':
+        return parse_add_order_message(msg)
+    elif msg_type == 'F':
+        return parse_add_order_mpid_attribution_message(msg)
+    elif msg_type == 'E':
+        return parse_order_executed_message(msg)
+    elif msg_type == 'C':
+        return parse_order_executed_with_price_message(msg)
+    elif msg_type == 'X':
+        return parse_order_cancel_message(msg)
+    elif msg_type == 'D':
+        return parse_order_delete_message(msg)
+    elif msg_type == 'U':
+        return parse_order_replace_message(msg)
+    elif msg_type == 'P':
+        return parse_trade_message(msg)
+    elif msg_type == 'Q':
+        return parse_cross_trade_message(msg)
+    elif msg_type == 'B':
+        return parse_broken_trade_message(msg)
+    elif msg_type == 'I':
+        return parse_noii_message(msg)
+    elif msg_type == 'O':
+        return parse_dlwcrpd(msg)
+    else:
+        return None
