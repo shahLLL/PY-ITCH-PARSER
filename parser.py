@@ -1,6 +1,5 @@
 from __future__ import annotations
 import struct
-from dataclasses import dataclass
 from dataclass import *
 from util import read_uint48, parse_price
 
