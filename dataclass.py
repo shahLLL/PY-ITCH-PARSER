@@ -93,7 +93,7 @@ class LULDAuctionCollar:
     auction_collar_ref_price: float
     upper_auction_collar_price: float
     lower_auction_collar_price: float
-    auction_collar_extension: float
+    auction_collar_extension: int
 
 @dataclass
 class OperationalHalt:
