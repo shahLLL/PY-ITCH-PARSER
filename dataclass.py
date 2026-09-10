@@ -110,7 +110,7 @@ class AddOrderMessage:
     tracking_number: int
     timestamp: int
     order_ref: int
-    side: str
+    buy_sell_indicator: str
     shares: int
     stock: str
     price: float
@@ -121,7 +121,7 @@ class AddOrderMPIDAttributionMessage:
     tracking_number: int
     timestamp: int
     order_ref: int
-    side: str
+    buy_sell_indicator: str
     shares: int
     stock: str
     price: float
